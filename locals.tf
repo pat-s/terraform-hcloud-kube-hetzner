@@ -144,7 +144,10 @@ locals {
         index : node_index
         selinux : nodepool_obj.selinux
         placement_group_compat_idx : nodepool_obj.placement_group_compat_idx,
-        placement_group : nodepool_obj.placement_group
+        placement_group : nodepool_obj.placement_group,
+        disable_ipv4: nodepool_obj.disable_ipv4,
+        disable_ipv6: nodepool_obj.disable_ipv6,
+        network_id: nodepool_obj.network_id,
       }
     }
   ]...)
@@ -169,7 +172,10 @@ locals {
         index : node_index
         selinux : nodepool_obj.selinux
         placement_group_compat_idx : nodepool_obj.placement_group_compat_idx,
-        placement_group : nodepool_obj.placement_group
+        placement_group : nodepool_obj.placement_group,
+        disable_ipv4: nodepool_obj.disable_ipv4,
+        disable_ipv6: nodepool_obj.disable_ipv6,
+        network_id: nodepool_obj.network_id,
       }
     }
   ]...)
@@ -196,6 +202,9 @@ locals {
           placement_group_compat_idx : nodepool_obj.placement_group_compat_idx,
           placement_group : nodepool_obj.placement_group,
           index : floor(tonumber(node_key)),
+          disable_ipv4: nodepool_obj.disable_ipv4,
+          disable_ipv6: nodepool_obj.disable_ipv6,
+          network_id: nodepool_obj.network_id,
         },
         { for key, value in node_obj : key => value if value != null },
         {
@@ -853,7 +862,8 @@ cloudinit_write_files_common = <<EOT
 
     sleep 11
 
-    INTERFACE=$(ip link show | awk '/^3:/{print $2}' | sed 's/://g')
+    # Take row beginning with 3 if exists, 2 otherwise (if only a private ip)
+    INTERFACE=$(ip link show | awk 'BEGIN{l3=""}; /^3:/{l3=$2}; /^2:/{l2=$2}; END{if(l3!="") print l3; else print l2}' | sed 's/://g')
     MAC=$(cat /sys/class/net/$INTERFACE/address)
 
     cat <<EOF > /etc/udev/rules.d/70-persistent-net.rules
