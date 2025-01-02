@@ -463,6 +463,9 @@ module "kube-hetzner" {
   # longhorn_volume_size (⚠️ not a variable, just a possible agent nodepool attribute) with a value between 10 and 10240 GB to your agent nodepool definition, it will create and use the volume in question.
   # See the agent nodepool section for an example of how to do that.
 
+  # To disable Hetzner Cloud Controller Manager, you can set the following to "true", default is "false".
+  # disable_hetzner_ccm = true
+
   # To disable Hetzner CSI storage, you can set the following to "true", default is "false".
   # disable_hetzner_csi = true
 
@@ -560,7 +563,7 @@ module "kube-hetzner" {
   #   Even if patched to remove the "default" label, the local-path storage class will be reset as default on each reboot of
   #   the node where the controller runs.
   #   This is not a problem if you explicitly define which storageclass to use in your PVCs.
-  #   Workaround if you don't want two default storage classes: leave this to false and add the local-path-provisioner helm chart 
+  #   Workaround if you don't want two default storage classes: leave this to false and add the local-path-provisioner helm chart
   #   as an extra (https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner#adding-extras).
   # enable_local_storage = false
 
@@ -611,7 +614,7 @@ module "kube-hetzner" {
   # Allows you to specify the k3s version. If defined, supersedes initial_k3s_channel.
   # See https://github.com/k3s-io/k3s/releases for the available versions.
   # install_k3s_version = "v1.30.2+k3s2"
-  
+
   # Allows you to specify either stable, latest, testing or supported minor versions.
   # see https://rancher.com/docs/k3s/latest/en/upgrades/basic/ and https://update.k3s.io/v1-release/channels
   # ⚠️ If you are going to use Rancher addons for instance, it's always a good idea to fix the kube version to one minor version below the latest stable,
@@ -659,8 +662,8 @@ module "kube-hetzner" {
   #   "trust anchor --store /root/ca.crt",
   # ]
 
-  # Structured authentication configuration. Multiple authentication providers support requires v1.30+ of 
-  # kubernetes.  
+  # Structured authentication configuration. Multiple authentication providers support requires v1.30+ of
+  # kubernetes.
   # https://kubernetes.io/docs/reference/access-authn-authz/authentication/#using-authentication-configuration
   #
   # authentication_config = <<-EOT
