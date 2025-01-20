@@ -145,9 +145,9 @@ locals {
         selinux : nodepool_obj.selinux
         placement_group_compat_idx : nodepool_obj.placement_group_compat_idx,
         placement_group : nodepool_obj.placement_group,
-        disable_ipv4: nodepool_obj.disable_ipv4,
-        disable_ipv6: nodepool_obj.disable_ipv6,
-        network_id: nodepool_obj.network_id,
+        disable_ipv4 : nodepool_obj.disable_ipv4,
+        disable_ipv6 : nodepool_obj.disable_ipv6,
+        network_id : nodepool_obj.network_id,
       }
     }
   ]...)
@@ -173,9 +173,9 @@ locals {
         selinux : nodepool_obj.selinux
         placement_group_compat_idx : nodepool_obj.placement_group_compat_idx,
         placement_group : nodepool_obj.placement_group,
-        disable_ipv4: nodepool_obj.disable_ipv4,
-        disable_ipv6: nodepool_obj.disable_ipv6,
-        network_id: nodepool_obj.network_id,
+        disable_ipv4 : nodepool_obj.disable_ipv4,
+        disable_ipv6 : nodepool_obj.disable_ipv6,
+        network_id : nodepool_obj.network_id,
       }
     }
   ]...)
@@ -202,9 +202,9 @@ locals {
           placement_group_compat_idx : nodepool_obj.placement_group_compat_idx,
           placement_group : nodepool_obj.placement_group,
           index : floor(tonumber(node_key)),
-          disable_ipv4: nodepool_obj.disable_ipv4,
-          disable_ipv6: nodepool_obj.disable_ipv6,
-          network_id: nodepool_obj.network_id,
+          disable_ipv4 : nodepool_obj.disable_ipv4,
+          disable_ipv6 : nodepool_obj.disable_ipv6,
+          network_id : nodepool_obj.network_id,
         },
         { for key, value in node_obj : key => value if value != null },
         {
