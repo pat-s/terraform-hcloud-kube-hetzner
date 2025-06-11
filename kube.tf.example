@@ -492,7 +492,7 @@ module "kube-hetzner" {
   # See the agent nodepool section for an example of how to do that.
 
   # To disable Hetzner Cloud Controller Manager, you can set the following to "true", default is "false".
-  # disable_hetzner_ccm = true
+  # hetzner_ccm_use_helm = true
 
   # To disable Hetzner CSI storage, you can set the following to "true", default is "false".
   # disable_hetzner_csi = true

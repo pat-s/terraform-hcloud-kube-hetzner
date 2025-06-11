@@ -830,7 +830,7 @@ variable "disable_hetzner_csi" {
   description = "Disable hetzner csi driver."
 }
 
-variable "disable_hetzner_ccm" {
+variable "hetzner_ccm_use_helm" {
   type        = bool
   default     = false
   description = "Disable hetzner Cloud Controller Manager."
