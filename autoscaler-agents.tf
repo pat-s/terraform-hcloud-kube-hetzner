@@ -21,14 +21,14 @@ locals {
   ]
 
   # Create a comprehensive image list that includes snapshots for all OS types used by nodepools
-  imageList = {
-    arm64 : length(var.autoscaler_nodepools) == 0 ? "" : tostring(local.snapshot_id_by_os[var.autoscaler_nodepools[0].os]["arm"])
-    amd64 : length(var.autoscaler_nodepools) == 0 ? "" : tostring(local.snapshot_id_by_os[var.autoscaler_nodepools[0].os]["x86"])
-  }
+  # imageList = {
+  #   arm64 : length(var.autoscaler_nodepools) == 0 ? "" : tostring(local.snapshot_id_by_os[var.autoscaler_nodepools[0].os]["arm"])
+  #   amd64 : length(var.autoscaler_nodepools) == 0 ? "" : tostring(local.snapshot_id_by_os[var.autoscaler_nodepools[0].os]["x86"])
+  # }
 
   nodeConfigName = var.use_cluster_name_in_node_name ? "${var.cluster_name}-" : ""
   cluster_config = {
-    imagesForArch : local.imageList
+    # imagesForArch : local.imageList
     nodeConfigs : {
       for index, nodePool in var.autoscaler_nodepools :
       ("${local.nodeConfigName}${nodePool.name}") => {
@@ -180,8 +180,8 @@ data "cloudinit_config" "autoscaler_legacy_config" {
           local.prefer_bundled_bin_config
         ))
         install_k3s_agent_script     = join("\n", concat(local.install_k3s_agent, ["systemctl start k3s-agent"]))
-        cloudinit_write_files_common = local.cloudinit_write_files_common_by_os["leapmicro"]
-        cloudinit_runcmd_common      = local.cloudinit_runcmd_common_by_os["leapmicro"]
+        cloudinit_write_files_common = local.cloudinit_write_files_common_by_os[var.autoscaler_nodepools[0].os]
+        cloudinit_runcmd_common      = local.cloudinit_runcmd_common_by_os[var.autoscaler_nodepools[0].os]
         private_network_only         = var.autoscaler_disable_ipv4 && var.autoscaler_disable_ipv6
       }
     )

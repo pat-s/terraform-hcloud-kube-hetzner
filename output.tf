@@ -159,3 +159,57 @@ output "haproxy_values" {
   value       = local.haproxy_values
   sensitive   = true
 }
+
+output "debug_snapshot_ids" {
+  value = {
+    leapmicro_arm = local.snapshot_id_by_os["leapmicro"]["arm"]
+    leapmicro_x86 = local.snapshot_id_by_os["leapmicro"]["x86"]
+    microos_arm   = local.snapshot_id_by_os["microos"]["arm"]
+    microos_x86   = local.snapshot_id_by_os["microos"]["x86"]
+  }
+}
+
+output "debug_autoscaler_config" {
+  value = {
+    nodepools       = var.autoscaler_nodepools
+    used_os         = local.used_os
+    os_requirements = local.os_requirements
+  }
+}
+
+# output "debug_autoscaler_snapshot_ids" {
+#   description = "Debug output showing snapshot IDs assigned to each autoscaler nodepool"
+#   value = {
+#     nodepools_with_snapshots = local.autoscaler_nodepools_with_snapshots
+#     cluster_config           = local.cluster_config
+#     imageList                = local.imageList
+#     isUsingLegacyConfig      = local.isUsingLegacyConfig
+#   }
+# }
+
+output "debug_autoscaler_full_config" {
+  description = "Complete autoscaler configuration including the actual cluster_config that gets passed to CCM"
+  value = {
+    cluster_config_base64 = base64encode(jsonencode(local.cluster_config))
+    cluster_config_json   = jsonencode(local.cluster_config)
+    isUsingLegacyConfig   = local.isUsingLegacyConfig
+    autoscaler_labels     = var.autoscaler_labels
+    autoscaler_taints     = var.autoscaler_taints
+  }
+}
+
+# output "debug_cluster_config_structure" {
+#   description = "Detailed breakdown of the cluster_config structure being passed to CCM"
+#   value = {
+#     imagesForArch = local.cluster_config.imagesForArch
+#     nodeConfigs = {
+#       for name, config in local.cluster_config.nodeConfigs : name => {
+#         snapshot_id = config.snapshot_id
+#         labels      = config.labels
+#         taints      = config.taints
+#         # Don't include cloudInit as it's very long
+#       }
+#     }
+#     snapshot_id_by_os = local.snapshot_id_by_os
+#   }
+# }
