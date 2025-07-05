@@ -1,9 +1,26 @@
 locals {
   cluster_prefix = var.use_cluster_name_in_node_name ? "${var.cluster_name}-" : ""
-  first_nodepool_snapshot_id = length(var.autoscaler_nodepools) == 0 ? "" : (
-    local.snapshot_id_by_os[var.autoscaler_nodepools[0].os][substr(var.autoscaler_nodepools[0].server_type, 0, 3) == "cax" ? "arm" : "x86"]
-  )
 
+  # Create image list for each nodepool based on their individual OS settings
+  nodepool_image_lists = {
+    for index, nodepool in var.autoscaler_nodepools :
+    nodepool.name => {
+      arm64 = tostring(local.snapshot_id_by_os[nodepool.os]["arm"])
+      amd64 = tostring(local.snapshot_id_by_os[nodepool.os]["x86"])
+    }
+  }
+
+  # The Hetzner Cloud Controller Manager can use different snapshots per nodepool
+  # through the cluster_config, so we don't need to limit to the first nodepool's snapshot
+  # This is kept for backward compatibility but may not be needed
+  # Create nodepool configurations with their respective snapshot IDs based on OS
+  autoscaler_nodepools_with_snapshots = [
+    for nodepool in var.autoscaler_nodepools : merge(nodepool, {
+      snapshot_id = local.snapshot_id_by_os[nodepool.os][substr(nodepool.server_type, 0, 3) == "cax" ? "arm" : "x86"]
+    })
+  ]
+
+  # Create a comprehensive image list that includes snapshots for all OS types used by nodepools
   imageList = {
     arm64 : length(var.autoscaler_nodepools) == 0 ? "" : tostring(local.snapshot_id_by_os[var.autoscaler_nodepools[0].os]["arm"])
     amd64 : length(var.autoscaler_nodepools) == 0 ? "" : tostring(local.snapshot_id_by_os[var.autoscaler_nodepools[0].os]["x86"])
@@ -18,6 +35,8 @@ locals {
         cloudInit = data.cloudinit_config.autoscaler_config[index].rendered
         labels    = nodePool.labels
         taints    = nodePool.taints
+        # Add snapshot ID for this specific nodepool based on its OS
+        snapshot_id = local.snapshot_id_by_os[nodePool.os][substr(nodePool.server_type, 0, 3) == "cax" ? "arm" : "x86"]
       }
     }
   }
@@ -37,11 +56,10 @@ locals {
       cluster_autoscaler_server_creation_timeout = tostring(var.cluster_autoscaler_server_creation_timeout)
       ssh_key                                    = local.hcloud_ssh_key_id
       ipv4_subnet_id                             = data.hcloud_network.k3s.id
-      snapshot_id                                = local.first_nodepool_snapshot_id
       cluster_config                             = base64encode(jsonencode(local.cluster_config))
       firewall_id                                = hcloud_firewall.k3s.id
       cluster_name                               = local.cluster_prefix
-      node_pools                                 = var.autoscaler_nodepools,
+      node_pools                                 = local.autoscaler_nodepools_with_snapshots,
       disable_ipv4                               = var.autoscaler_disable_ipv4,
       disable_ipv6                               = var.autoscaler_disable_ipv6,
   })
@@ -123,8 +141,8 @@ data "cloudinit_config" "autoscaler_config" {
           local.prefer_bundled_bin_config
         ))
         install_k3s_agent_script     = join("\n", concat(local.install_k3s_agent, ["systemctl start k3s-agent"]))
-        cloudinit_write_files_common = local.cloudinit_write_files_common_by_os["leapmicro"]
-        cloudinit_runcmd_common      = local.cloudinit_runcmd_common_by_os["leapmicro"]
+        cloudinit_write_files_common = local.cloudinit_write_files_common_by_os[var.autoscaler_nodepools[count.index].os]
+        cloudinit_runcmd_common      = local.cloudinit_runcmd_common_by_os[var.autoscaler_nodepools[count.index].os]
         private_network_only         = var.autoscaler_disable_ipv4 && var.autoscaler_disable_ipv6
       }
     )

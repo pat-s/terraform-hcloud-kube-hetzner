@@ -189,8 +189,6 @@ spec:
             value: ${cluster_config}
           - name: HCLOUD_SSH_KEY
             value: '${ssh_key}'
-          - name: HCLOUD_IMAGE
-            value: '${snapshot_id}'
           - name: HCLOUD_NETWORK
             value: '${ipv4_subnet_id}'
           - name: HCLOUD_FIREWALL
